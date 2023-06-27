@@ -1,0 +1,38 @@
+---
+# Source: gosnappass/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dev
+data:
+  SNAPPASS_LISTEN_ADDRESS: ":5000"
+---
+# Source: gosnappass/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gosnappass-dev
+  labels:
+    app: gosnappass
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gosnappass
+  template:
+    metadata:
+      labels:
+        app: gosnappass
+    spec:
+      containers:
+      - name: gosnappass
+        image: ghcr.io/concerthall/gosnappass:latest
+        ports:
+        - containerPort: 5000
+        envFrom:
+        - configMapRef:
+            name: dev
+      - name: redis
+        image: docker.io/redis/redis-stack:latest
+        ports:
+        - containerPort: 6379
